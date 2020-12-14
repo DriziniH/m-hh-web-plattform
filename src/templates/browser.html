@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+
+<div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div class="bg-light border-right" id="sidebar-wrapper">
+        <div class="sidebar-heading">Datenprodukte </div>
+        <div class="list-group list-group-flush">
+            <a href="#" class="list-group-item list-group-item-action bg-light">{Name 1}</a>
+            <a href="#" class="list-group-item list-group-item-action bg-light">{Name 2}</a>
+            <a href="#" class="list-group-item list-group-item-action bg-light">{Name 3}</a>
+        </div>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <p>Content</p>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Menu Toggle Script -->
+<script>
+    $("#menu-toggle").click(function (e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+</script>
+
+{% endblock %}
