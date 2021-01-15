@@ -11,10 +11,10 @@ app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 
 
 
-mongo_connection = pm.connection_string
+mongo_connection = pm.db_con_usa
 mongo_client = MongoClient(mongo_connection)
-mongo_db = mongo_client["M-HH-analysis"]
-regional_col = mongo_db["usa_analysis"]
+mongo_db = mongo_client["M-HH-USA"]
+regional_col = mongo_db["analysis"]
 
 print("Successfully connected to MongoDB")
 

@@ -3,29 +3,41 @@ import pandas as pd
 import numpy as np
 import json
 import plotly.graph_objs as go
-
-def create_plot(data = {}, label ="", label_x ="", label_y = ""):
-    x = []
-    y = []
-
-    for key, value in data.items():
-        y.append(value)
-        x.append(key)
-
-    df = pd.DataFrame({'x': x, 'y': y})
+import plotly.express as px
 
 
-    layout = go.Layout(title=label, xaxis=dict(title=label_x),
-                    yaxis=dict(title=label_y), )
+# def create_plot(data=[], label="plot", label_x="x", label_y="y"):
 
-    data = [
-        go.Bar(
-            x=df['x'],
-            y=df['y']
-        ),
-        layout
-    ]
+#     x = []
+#     y = []
 
-    graphJSON = json.dumps(data, cls=py.utils.PlotlyJSONEncoder)
+#     for row in data:
+#         y.append(row["numActiveCars"])
+#         x.append(row["timestamp"])
 
-    return graphJSON
+#     df = pd.DataFrame({label_x: x, label_y: y})
+#     df[label_x] = pd.to_datetime(df[label_x], unit='ms').tolist()
+
+#     layout = go.Layout(title=label)
+
+#     fig = px.line(df, x=label_x, y=label_y)
+
+#     graphJSON = json.dumps(fig, cls=py.utils.PlotlyJSONEncoder)
+#     #graphJSON = construct_json_graph(x, y, "timestamp", "cars", "scatter", {
+#                                     #  "title": "Number of active cars"})
+#     #print(graphJSON)
+#     return graphJSON
+
+
+def create_json_graph(title, x, y, label_x="x", label_y="y", chart_type="bar", layout={}):
+    return json.dumps({
+        "data": [{
+            "title":title,
+            "x": x,
+            "xaxis": label_x,
+            "y": y,
+            "yaxis": label_y,
+            "type": chart_type,
+            "layout": layout
+        }]
+    })

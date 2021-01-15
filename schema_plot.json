@@ -1,0 +1,22 @@
+{
+    "data": [
+        {
+            "x": [
+                "giraffes",
+                "orangutans",
+                "monkeys"
+            ],
+            "xaxis": "name_x",
+            "y": [
+                20,
+                14,
+                23
+            ],
+            "yaxis": "name_y",
+            "type": "bar",
+            "layout":{
+
+            }
+        }
+    ]
+}
