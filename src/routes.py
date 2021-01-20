@@ -5,7 +5,7 @@ import traceback
 from flask import render_template, url_for, flash, redirect, request, Flask, render_template_string, session, send_file, send_from_directory
 
 from src.forms import LoginForm
-from src.index import app, regional_col
+from src.index import app, regional_col, units_col
 from src.plots import create_json_graph
 
 
@@ -29,33 +29,71 @@ def get_graph_params(json_graph):
     Returns:
         params
     """
-    
-    title = json_graph.get("title", "")
+
     x = json_graph.get("x", [])
     y = json_graph.get("y", [])
-    label_x = json_graph.get("labelX", "")
-    label_y = json_graph.get("labelY", "")
-    chart_type = json_graph.get("chart_type", "bar")
+    chart_type = json_graph.get("type", "bar")
     layout = json_graph.get("layout", {})
 
-    return title, x, y, label_x, label_y, chart_type, layout
+    return  x, y, chart_type, layout
 
     # TODO Parse validity?
 
 
+chart_type = {
+    "bar": "../static/img/bar-chart.png",
+    "scatter": "../static/img/scatter-chart.png",
+    "pie": "../static/img/pie-chart.png",
+    "line": "../static/img/line-chart.png",
+    "scattergeo" : "../static/img/map.png"
+}
+
+
 @app.route("/analytics/")
 def analytics():
+    plots = {}
+
     doc_cursor = regional_col.find({})
-    curr_analysis = {}
-    plots = []
 
     for doc in doc_cursor:
-        plots.append(create_json_graph(*get_graph_params(doc["jsonGraph"])))
+        unit = units_col.find_one({"_id": doc["_unit"]})
 
-    return render_template('analytics.html', plot=plots[2])
+        if not unit:
+            break
+
+        if doc["_unit"] not in plots:
+            plots[doc["_unit"]] = {
+                "unit_id": doc["_unit"],
+                "unit_label": unit["label"]
+            }
+
+        graph_params = get_graph_params(doc["jsonGraph"])
+        
+        graph = {"title": graph_params[3]["title"],
+                 "img": chart_type[doc["jsonGraph"]["type"]],
+                 "type" : doc.get("_type", ""),
+                 "jsonGraph":  create_json_graph(*graph_params)}
+
+        if "graphs" in plots[doc["_unit"]]:
+            plots[doc["_unit"]]["graphs"].append(graph)
+        else:
+            plots[doc["_unit"]]["graphs"] = [graph]
+
+    #call requested region of first
+    unit_id = request.args.get("region") if "region" in request.args else next(iter(plots.values()))["unit_id"]
+
+    plot = None
+    if "type" in request.args:
+        for graph in plots.get(unit_id, "")["graphs"]:
+            if graph["type"] == request.args.get("type"):
+                plot = graph["jsonGraph"]
+
+                print(f'Plot: {plot}')
+
+    return render_template('analytics.html', plots=plots, unit_id=unit_id, plot = plot)
 
 
-@app.route("/login/", methods=['GET', 'POST'])
+@ app.route("/login/", methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():  # TODO Login logik

@@ -29,15 +29,21 @@ import plotly.express as px
 #     return graphJSON
 
 
-def create_json_graph(title, x, y, label_x="x", label_y="y", chart_type="bar", layout={}):
-    return json.dumps({
-        "data": [{
-            "title":title,
-            "x": x,
-            "xaxis": label_x,
-            "y": y,
-            "yaxis": label_y,
-            "type": chart_type,
-            "layout": layout
-        }]
-    })
+def create_json_graph(x, y, chart_type="bar", layout={}):
+
+    if chart_type == "scattergeo":
+        fig = {
+            "data": [{
+                "lat": x,
+                "lon": y,
+                "type": chart_type,
+            }], "layout": layout}
+    else:
+        fig = {
+            "data": [{
+                "x": x,
+                "y": y,
+                "type": chart_type,
+            }], "layout": layout}
+
+    return json.dumps(fig, cls=py.utils.PlotlyJSONEncoder)

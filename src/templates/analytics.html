@@ -1,7 +1,15 @@
 <head lang="en">
     <meta charset="UTF-8">
+    <title>Analytics</title>
+
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  </head>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/css/simple-sidebar.css" type="text/css" rel="stylesheet">
+</head>
 
 {% extends "layout.html" %}
 {% block title %}{% endblock %}
@@ -11,39 +19,50 @@
 
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
-        <div class="sidebar-heading">Datenprodukte </div>
         <div class="list-group list-group-flush">
-            <a href="#" class="list-group-item list-group-item-action bg-light">EU</a>
-            <a href="#" class="list-group-item list-group-item-action bg-light">USA</a>
-            <a href="#" class="list-group-item list-group-item-action bg-light">CHINA</a>
+            {% for id, unit in plots.items() %}
+            <a href="?region={{id}}" class="list-group-item list-group-item-action bg-light">{{ unit["unit_label"]
+                }}</a>
+            {% endfor %}
         </div>
     </div>
     <!-- /#sidebar-wrapper -->
 
     <!-- Page Content -->
     <div id="page-content-wrapper">
+        {% if not plot %}
+        <!-- <div class="container-fluid"> -->
+        {% for graph in plots[unit_id]["graphs"] %}
+        <div class="card" style="width: 20rem;" id="{{unit_id}}">
+            <img class="card-img-top" src="{{ graph.get('img') }}">
+            <!--alt="Card image cap" -->
+            <div class="card-block">
+                <h4 class="card-title">{{ graph.get("title", "Title not available") }}</h4>
+                <p class="card-text">{{ graph.get("description", "Description not available") }}</p>
+                <a href="?region={{unit_id}}&type={{graph.get('type', None)}}" class="btn btn-primary">View</a>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
         <div class="container-fluid">
             <div id="bargraph">
                 <script>
-                    var graphs = {{plot | safe}};
-                    Plotly.plot('bargraph',graphs,{});
+                    var graphs = {{ plot | safe}};
+                    Plotly.plot('bargraph', graphs, {});
                 </script>
             </div>
         </div>
+        {% endif %}
+        <!-- </div> -->
     </div>
+    <!-- /#page-content-wrapper -->
 
-
-        
+    <script>
+        function returnGraph(regionId, jsonGraph) {
+            window.location.href = "?region=" + regionId + "&graph=" + jsonGraph
+        }
+    </script>
 </div>
-
-
-<!-- Menu Toggle Script -->
-<script>
-    $("#menu-toggle").click(function (e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-    });
-</script>
 
 
 {% endblock %}
