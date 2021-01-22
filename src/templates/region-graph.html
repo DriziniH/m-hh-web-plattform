@@ -1,0 +1,8 @@
+<div class="container-fluid" id="plots">
+    <div id="bargraph">
+        <script>
+            var graphs = {{ plot | safe}};
+            Plotly.plot('bargraph', graphs, {});
+        </script>
+    </div>
+</div>

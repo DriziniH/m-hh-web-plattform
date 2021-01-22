@@ -1,0 +1,71 @@
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Analytics</title>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/css/simple-sidebar.css" type="text/css" rel="stylesheet">
+</head>
+
+{% extends "layout.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+
+<div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div class="bg-light border-right" id="sidebar-wrapper">
+        <div class="list-group list-group-flush">
+            {% for unit in units %}
+            <a href="?region={{ unit['_id'] }}" class="list-group-item list-group-item-action bg-light">{{ unit["label"]
+                }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="form-group">
+                <label for="exampleFormControlTextarea3">{{unit["label"]}}</label>
+                <textarea class="form-control rounded-0" id="exampleFormControlTextarea3" rows="100" readonly>
+                    {{ unit_json_pretty }}
+                </textarea>
+            </div>
+        </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+    <script>
+        (function (d) {
+
+            stylizePreElements = function () {
+                var preElements = document.getElementsByTagName("textarea");
+                for (i = 0; i < preElements.length; ++i) {
+                    var preElement = preElements[i];
+                    preElement.className += "prettyprint";
+                }
+            };
+
+            injectPrettifyScript = function () {
+                var scriptElement = document.createElement('script');
+                scriptElement.setAttribute("src", "https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js");
+                document.head.appendChild(scriptElement);
+            };
+
+            stylizePreElements();
+            injectPrettifyScript();
+
+        })(document)
+    </script>
+
+</div>
+
+
+{% endblock %}

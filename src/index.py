@@ -16,6 +16,7 @@ mongo_client = MongoClient(mongo_connection)
 mongo_db = mongo_client["M-HH"]
 regional_col = mongo_db["analysis"]
 units_col = mongo_db["units"]
+schemas_col = mongo_db["schemas"]
 
 print("Successfully connected to MongoDB")
 

@@ -9,6 +9,8 @@
 
     <!-- Custom styles for this template -->
     <link href="../static/css/simple-sidebar.css" type="text/css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 </head>
 
 {% extends "layout.html" %}
@@ -53,15 +55,9 @@
             </div>
         </div>
         {% endif %}
-        <!-- </div> -->
     </div>
     <!-- /#page-content-wrapper -->
 
-    <script>
-        function returnGraph(regionId, jsonGraph) {
-            window.location.href = "?region=" + regionId + "&graph=" + jsonGraph
-        }
-    </script>
 </div>
 
 

@@ -1,6 +1,6 @@
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Browser</title>
+    <title>Schemas</title>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
@@ -9,8 +9,6 @@
 
     <!-- Custom styles for this template -->
     <link href="../static/css/simple-sidebar.css" type="text/css" rel="stylesheet">
-
-    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 </head>
 
 {% extends "layout.html" %}
@@ -22,33 +20,28 @@
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
         <div class="list-group list-group-flush">
-            {% for unit in units %}
-            <a href="?region={{unit['_id']}}" class="list-group-item list-group-item-action bg-light">{{ unit["label"]
+            {% for schema in schemas %}
+            <a href="?schema={{ schema['_id'] }}" class="list-group-item list-group-item-action bg-light">{{ schema["label"]
                 }}</a>
             {% endfor %}
         </div>
     </div>
     <!-- /#sidebar-wrapper -->
 
+
     <!-- Page Content -->
     <div id="page-content-wrapper">
-        {% if not img %}
-
-        {% for path in unit["pathsDL"] %}
-        <div class="card" style="width: 20rem;" id="{{unit_id}}">
-            <div class="card-block">
-                <h4 class="card-title">{{path}}</h4>
-                <p class="card-text">Description</p>
-                <a href="?region={{unit_id}}&path={{ path }}" class="btn btn-primary">Browse</a>
+        <div class="container-fluid">
+            <div class="form-group">
+                <label for="exampleFormControlTextarea3">{{schema["label"]}} : {{schema["description"]}}</label>
+                <textarea class="form-control rounded-0" id="exampleFormControlTextarea3" rows="100" readonly>
+                    {{ unit_json_pretty }}
+                </textarea>
             </div>
         </div>
-        {% endfor %}
-
-        {% else %}
-        <img src="{{img}}" alt="{{path}}">
-        {% endif %}
     </div>
     <!-- /#page-content-wrapper -->
+
 </div>
 
 

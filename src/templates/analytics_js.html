@@ -1,6 +1,6 @@
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Browser</title>
+    <title>Analytics</title>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
@@ -11,6 +11,7 @@
     <link href="../static/css/simple-sidebar.css" type="text/css" rel="stylesheet">
 
     <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+
 </head>
 
 {% extends "layout.html" %}
@@ -22,8 +23,10 @@
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
         <div class="list-group list-group-flush">
-            {% for unit in units %}
-            <a href="?region={{unit['_id']}}" class="list-group-item list-group-item-action bg-light">{{ unit["label"]
+            {% for id, unit in plots.items() %}
+            <a id="region-switch" graphs="{{ unit['graphs'] }}"
+                class="list-group-item list-group-item-action bg-light">{{
+                unit["unit_label"]
                 }}</a>
             {% endfor %}
         </div>
@@ -32,24 +35,25 @@
 
     <!-- Page Content -->
     <div id="page-content-wrapper">
-        {% if not img %}
-
-        {% for path in unit["pathsDL"] %}
-        <div class="card" style="width: 20rem;" id="{{unit_id}}">
-            <div class="card-block">
-                <h4 class="card-title">{{path}}</h4>
-                <p class="card-text">Description</p>
-                <a href="?region={{unit_id}}&path={{ path }}" class="btn btn-primary">Browse</a>
-            </div>
-        </div>
-        {% endfor %}
-
-        {% else %}
-        <img src="{{img}}" alt="{{path}}">
-        {% endif %}
     </div>
-    <!-- /#page-content-wrapper -->
+</div>
+<!-- /#page-content-wrapper -->
+
 </div>
 
+<script>
+    $("#region-switch").click(function (e) {
+        e.preventDefault();
+        var graphs = e.target.getAttribute("graphs");
+        $("#page-content-wrapper").load("/region-cards.html", { 'plot': graphs })
+    });  
+
+    $("#plot-switch").click(function (e) {
+        e.preventDefault();
+        var jsonGraph = e.target.getAttribute("jsonGraph");
+        console.log(jsonGraph);
+        $("#page-content-wrapper").load("/region-graph.html", { 'plot': jsonGraph })
+    });
+</script>
 
 {% endblock %}

@@ -37,13 +37,37 @@ def create_json_graph(x, y, chart_type="bar", layout={}):
                 "lat": x,
                 "lon": y,
                 "type": chart_type,
-            }], "layout": layout}
+            }], 
+            "layout": layout,
+            "title": layout.get("title","")}
+            
     else:
         fig = {
             "data": [{
                 "x": x,
                 "y": y,
                 "type": chart_type,
-            }], "layout": layout}
+            }], 
+            "layout": layout}
 
     return json.dumps(fig, cls=py.utils.PlotlyJSONEncoder)
+
+
+def get_graph_params(json_graph):
+    """Reads params from json graph
+
+    Args:
+        json_graph (dict): graph information
+
+    Returns:
+        params
+    """
+
+    x = json_graph.get("x", [])
+    y = json_graph.get("y", [])
+    chart_type = json_graph.get("type", "bar")
+    layout = json_graph.get("layout", {})
+
+    return x, y, chart_type, layout
+
+    # TODO Parse validity?
