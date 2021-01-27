@@ -5,7 +5,7 @@ import json
 from flask import render_template, url_for, flash, redirect, request, Flask, render_template_string, session, send_file, send_from_directory
 
 from src.forms import LoginForm
-from src.index import app, regional_col, units_col, schemas_col
+from src.index import app, analytics_col, units_col, schemas_col
 from src.utility import graph_tools
 
 
@@ -45,45 +45,21 @@ chart_type = {
 
 @app.route("/analytics/")
 def analytics():
-    plots = {}
-
-    doc_cursor = regional_col.find({})
-
-    for doc in doc_cursor:
-        unit = units_col.find_one({"_id": doc["_unit"]})
-
-        if not unit:
-            break
-
-        if doc["_unit"] not in plots:
-            plots[doc["_unit"]] = {
-                "unit_id": doc["_unit"],
-                "unit_label": unit["label"]
-            }
-
-        graph_params = graph_tools.get_graph_params(doc["jsonGraph"])
-
-        graph = {"title": graph_params[3]["title"],
-                 "img": chart_type[doc["jsonGraph"]["type"]],
-                 "type": doc.get("_type", ""),
-                 "jsonGraph":  graph_tools.create_json_graph(*graph_params)}
-
-        if "graphs" in plots[doc["_unit"]]:
-            plots[doc["_unit"]]["graphs"].append(graph)
-        else:
-            plots[doc["_unit"]]["graphs"] = [graph]
+    units = list(analytics_col.find())
 
     # call requested region or first
-    unit_id = request.args.get("region") if "region" in request.args else next(
-        iter(plots.values()))["unit_id"]
+    unit_id = request.args.get("unit")if "unit" in request.args else next(iter(units))["_id"]
+    
+    unit = analytics_col.find_one({"_id" : unit_id})
 
     plot = None
+
     if "type" in request.args:
-        for graph in plots.get(unit_id, "")["graphs"]:
+        for graph in unit["graphs"]:
             if graph["type"] == request.args.get("type"):
                 plot = graph["jsonGraph"]
 
-    return render_template('analytics.html', plots=plots, unit_id=unit_id, plot=plot)
+    return render_template('analytics.html', units=units, unit=unit, plot=plot)
 
 
 @app.route("/regions/")
