@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 mongo_connection = pm.db_con_usa
 mongo_client = MongoClient(mongo_connection)
 mongo_db = mongo_client["M-HH"]
-regional_col = mongo_db["analysis"]
+analytics_col = mongo_db["analysis"]
 units_col = mongo_db["units"]
 schemas_col = mongo_db["schemas"]
 
