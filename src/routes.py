@@ -7,6 +7,7 @@ from flask import render_template, url_for, flash, redirect, request, Flask, ren
 from src.forms import LoginForm
 from src.index import app, analytics_col, units_col, schemas_col
 from src.utility import graph_tools
+from src.graphql import graphql
 
 
 @app.route("/")
@@ -22,7 +23,8 @@ def browser():
     units = list(units_col.find({}))
 
     # call requested region or first
-    unit_id = request.args.get("region") if "region" in request.args else units[0]
+    unit_id = request.args.get(
+        "region") if "region" in request.args else units[0]
     for unit in units:
         if unit["_id"] == unit_id:
             break
@@ -45,12 +47,17 @@ chart_type = {
 
 @app.route("/analytics/")
 def analytics():
-    units = list(analytics_col.find())
+    units = graphql.fetchAnalysisResults()
 
     # call requested region or first
-    unit_id = request.args.get("unit")if "unit" in request.args else next(iter(units))["_id"]
-    
-    unit = analytics_col.find_one({"_id" : unit_id})
+    unit_id = request.args.get(
+        "unit")if "unit" in request.args else next(iter(units))["_id"]
+
+    unit = analytics_col.find_one({"_id": unit_id})
+
+    #Add img path to display when showing graphs
+    for graph in unit["graphs"]:
+        graph.update({"img": chart_type.get(graph.get("chartType", ""), "")})
 
     plot = None
 
