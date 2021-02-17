@@ -90,27 +90,6 @@ def regions():
     return render_template("regions.html", units=units, unit=unit, unit_json_pretty=json.dumps(unit, indent=4))
 
 
-@app.route("/schemas/")
-def schemas():
-    """ Reads schemas and renders template
-
-    Params:
-        schema (String): Schema id if schema is clicked by user
-
-    Returns:
-        schemas.html: Displays a sidebar with all schemas and their fields
-    """
-    schemas = list(schemas_col.find({}))
-
-    # call requested region of first
-    schema_id = request.args.get(
-        "schema") if "schema" in request.args else schemas[0]["_id"]
-
-    schema = schemas_col.find_one({"_id": schema_id})
-
-    return render_template("schemas.html", schemas=schemas, schema=schema, unit_json_pretty=json.dumps(schema, indent=4))
-
-
 @ app.route("/login/", methods=['GET', 'POST'])
 def login():
     form = LoginForm()
