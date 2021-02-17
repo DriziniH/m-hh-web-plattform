@@ -1,6 +1,6 @@
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>IAM Login</title>
 </head>
 
 {% extends "layout.html" %}
@@ -11,29 +11,29 @@
         <fieldset class="form-group">
             <legend class="border-bottom mb-4">Log In</legend>
             <div class="form-group">
-                {{ form.email.label(class="form-control-label") }}
-                {% if form.email.errors %}
-                {{ form.email(class="form-control form-control-lg is-invalid") }}
+                {{ form.aws_access_key_id.label(class="form-control-label") }}
+                {% if form.aws_access_key_id.errors %}
+                {{ form.aws_access_key_id(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.email.errors %}
+                    {% for error in form.aws_access_key_id.errors %}
                     <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.email(class="form-control form-control-lg") }}
+                {{ form.aws_access_key_id(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
             <div class="form-group">
-                {{ form.password.label(class="form-control-label") }}
-                {% if form.password.errors %}
-                {{ form.password(class="form-control form-control-lg is-invalid") }}
+                {{ form.aws_secred_access_key.label(class="form-control-label") }}
+                {% if form.aws_secred_access_key.errors %}
+                {{ form.aws_secred_access_key(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.password.errors %}
+                    {% for error in form.aws_secred_access_key.errors %}
                     <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.password(class="form-control form-control-lg") }}
+                {{ form.aws_secred_access_key(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
             <div class="form-check">
@@ -44,9 +44,6 @@
         <div class="form-group">
             {{ form.submit(class="btn btn-outline-info") }}
         </div>
-        <small class="text-muted ml-2">
-            <a href="#">Forgot Password?</a>
-        </small>
     </form>
 </div>
 
