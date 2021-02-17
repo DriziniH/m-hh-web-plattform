@@ -2,23 +2,30 @@ import os
 from os.path import join, dirname, realpath
 import traceback
 import json
-from flask import render_template, url_for, flash, redirect, request, Flask, render_template_string, session, send_file, send_from_directory
+from flask import render_template, url_for, flash, redirect, request, Flask, render_template_string, session, send_file, send_from_directory, session
 import boto3
 from src.forms import LoginForm
-from src.index import app, analytics_col, units_col, schemas_col, aws_access_key_id, aws_secret_access_key
+from src.index import app, analytics_col, units_col, schemas_col
 from src.utility import graph_tools
 from src.graphql import graphql
 from flask_login import current_user, logout_user, login_required, login_user
-from boto3.session import Session
+from boto3.session import Session as BotoSession
+
 
 @app.route("/")
 @app.route("/home/")
 def home():
+    if "sts" not in session:
+        return redirect(url_for('login'))
+
     return render_template('home.html')
 
 
 @app.route("/browser/")
 def browser():
+    if "sts" not in session:
+        return redirect(url_for('login'))
+
     plots = {}
 
     units = list(units_col.find({}))
@@ -48,6 +55,9 @@ chart_type = {
 
 @app.route("/analytics/")
 def analytics():
+    if "sts" not in session:
+        return redirect(url_for('login'))
+
     units = graphql.fetchAnalysisResults()
 
     # call requested region or first
@@ -80,6 +90,10 @@ def regions():
     Returns:
         regions.html: Displays a sidebar with all regions and their config in json
     """
+
+    if "sts" not in session:
+        return redirect(url_for('login'))
+
     units = list(units_col.find({}))
 
     # call requested region of first
@@ -93,23 +107,22 @@ def regions():
 
 @ app.route("/login/", methods=['GET', 'POST'])
 def login():
-    #next_page = request.args.get('next')
-    # if current_user.is_authenticated:
-    #     flash_message("Already logged in!")
-    #     return redirect(next_page or url_for('home'))
+    if "sts" in session:
+        flash_message("Already logged in!")
+        return redirect(url_for('home'))
+
     form = LoginForm()
     if form.validate_on_submit():
         try:
-            sess = Session(aws_access_key_id=form.aws_access_key_id, aws_secret_access_key=form.aws_secred_access_key, aws_session_token=None)
+            sess = BotoSession(aws_access_key_id=form.aws_access_key_id.data,
+                               aws_secret_access_key=form.aws_secred_access_key.data, aws_session_token=None)
             sts = sess.client('sts')
             sts.get_caller_identity()
-            login_user(sts, remember=form.remember.data)
-            flash("Credentials are NOT valid.")
-            print("Credentials are NOT valid.")
-            return redirect(next_page or url_for('home'))
+            flash("Successfully logged in.")
+            session["sts"] = True
+            return redirect(url_for('home'))
         except Exception as e:
             flash("Credentials are NOT valid.")
-            print("Credentials are NOT valid.")
             print(e)
 
     return render_template('login.html', title='Login', form=form)
@@ -117,9 +130,9 @@ def login():
 
 @app.route("/logout/")
 def logout():
-    logout_user()
+    session.pop("sts")
     flash_message("You have been successfully logged out!")
-    return redirect(url_for('home'))
+    return redirect(url_for('login'))
 
 
 def flash_message(message):

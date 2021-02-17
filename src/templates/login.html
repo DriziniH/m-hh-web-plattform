@@ -1,6 +1,6 @@
 <head lang="en">
     <meta charset="UTF-8">
-    <title>IAM Login</title>
+    <title>Login</title>
 </head>
 
 {% extends "layout.html" %}
@@ -9,7 +9,7 @@
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Log In</legend>
+            <legend class="border-bottom mb-4">IAM log In</legend>
             <div class="form-group">
                 {{ form.aws_access_key_id.label(class="form-control-label") }}
                 {% if form.aws_access_key_id.errors %}
@@ -35,10 +35,6 @@
                 {% else %}
                 {{ form.aws_secred_access_key(class="form-control form-control-lg") }}
                 {% endif %}
-            </div>
-            <div class="form-check">
-                {{ form.remember(class="form-check-input") }}
-                {{ form.remember.label(class="form-check-label") }}
             </div>
         </fieldset>
         <div class="form-group">
