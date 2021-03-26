@@ -16,8 +16,8 @@ mongo_connection = pm.db_con_usa
 mongo_client = MongoClient(mongo_connection)
 mongo_db = mongo_client["M-HH"]
 analytics_col = mongo_db["analysis"]
-units_col = mongo_db["units"]
-schemas_col = mongo_db["schemas"]
+dm_col = mongo_db["dm_config"]
+dp_col = mongo_db["dp_config"]
 
 print("Successfully connected to MongoDB")
 

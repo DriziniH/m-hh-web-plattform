@@ -1,0 +1,35 @@
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Data Mesh Specification</title>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/css/simple-sidebar.css" type="text/css" rel="stylesheet">
+</head>
+
+{% extends "layout.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+
+<div class="d-flex" id="wrapper">
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="form-group">
+                <textarea class="form-control rounded-0" id="exampleFormControlTextarea3" rows="100" readonly>
+                    {{ dm_json }}
+                </textarea>
+            </div>
+        </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+</div>
+
+
+{% endblock %}

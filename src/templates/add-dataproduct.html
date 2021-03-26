@@ -1,0 +1,17 @@
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Add Data Product</title>
+    <!-- Bootstrap core CSS -->
+    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+{% extends "layout.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+<h1>Upload json configuration of data product</h1>
+<form method=post enctype=multipart/form-data>
+    <input type=file name=file>
+    <input type=submit value=Upload>
+</form>
+{% endblock %}

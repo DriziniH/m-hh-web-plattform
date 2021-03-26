@@ -1,0 +1,32 @@
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+{% extends "layout.html" %}
+{% block title %}{% endblock %}
+
+{% block content %}
+
+    <div id="page-content-wrapper">
+        <!-- <div class="container-fluid"> -->
+        {% for graph in graphs %}
+        <div class="card" style="width: 20rem;">
+            <img class="card-img-top" src="{{ graph.get('img') }}">
+            <!--alt="Card image cap" -->
+            <div class="card-block">
+                <h4 class="card-title">{{ graph.get("layout", "Title not available").get("title", "Title not available") }}</h4>
+                <a href="?analysisType={{graph.get('_analysisType', None)}}" class="btn btn-primary">View</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+{% endblock %}

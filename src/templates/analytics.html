@@ -20,27 +20,26 @@
 <div class="d-flex" id="wrapper">
 
     <!-- Sidebar -->
-    <div class="bg-light border-right" id="sidebar-wrapper">
+    <!-- <div class="bg-light border-right" id="sidebar-wrapper">
         <div class="list-group list-group-flush">
             {% for unit in units %}
             <a href="?unit={{ unit['_id'] }}" class="list-group-item list-group-item-action bg-light">{{ unit['label'] }}</a>
             {% endfor %}
         </div>
-    </div>
+    </div> -->
     <!-- /#sidebar-wrapper -->
 
     <!-- Page Content -->
     <div id="page-content-wrapper">
         {% if not plot %}
         <!-- <div class="container-fluid"> -->
-        {% for graph in unit["graphs"] %}
-        <div class="card" style="width: 20rem;" id="{{unit_id}}">
+        {% for graph in graphs %}
+        <div class="card" style="width: 20rem;">
             <img class="card-img-top" src="{{ graph.get('img') }}">
             <!--alt="Card image cap" -->
             <div class="card-block">
-                <h4 class="card-title">{{ graph.get("title", "Title not available") }}</h4>
-                <p class="card-text">{{ graph.get("description", "Description not available") }}</p>
-                <a href="?unit={{unit['_id']}}&type={{graph.get('type', None)}}" class="btn btn-primary">View</a>
+                <h4 class="card-title">{{ graph.get("layout", "Title not available").get("title", "Title not available") }}</h4>
+                <a href="?analysisType={{graph.get('_analysisType', None)}}" class="btn btn-primary">View</a>
             </div>
         </div>
         {% endfor %}

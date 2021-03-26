@@ -1,6 +1,6 @@
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Analytics</title>
+    <title>Data Products</title>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
@@ -20,8 +20,8 @@
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
         <div class="list-group list-group-flush">
-            {% for unit in units %}
-            <a href="?region={{ unit['_id'] }}" class="list-group-item list-group-item-action bg-light">{{ unit["label"]
+            {% for dp in dps %}
+            <a href="?dpid={{ dp['_id'] }}" class="list-group-item list-group-item-action bg-light">{{ dp["label"]
                 }}</a>
             {% endfor %}
         </div>
@@ -33,9 +33,9 @@
     <div id="page-content-wrapper">
         <div class="container-fluid">
             <div class="form-group">
-                <label for="exampleFormControlTextarea3">{{unit["label"]}}</label>
+                <label for="exampleFormControlTextarea3">{{ dp["label"] }}</label>
                 <textarea class="form-control rounded-0" id="exampleFormControlTextarea3" rows="100" readonly>
-                    {{ unit_json_pretty }}
+                    {{ dp_json }}
                 </textarea>
             </div>
         </div>
