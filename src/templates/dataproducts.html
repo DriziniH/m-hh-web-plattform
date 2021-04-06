@@ -3,12 +3,8 @@
     <title>Data Products</title>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
     <!-- Bootstrap core CSS -->
     <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="../static/css/simple-sidebar.css" type="text/css" rel="stylesheet">
 </head>
 
 {% extends "layout.html" %}
@@ -32,11 +28,61 @@
     <!-- Page Content -->
     <div id="page-content-wrapper">
         <div class="container-fluid">
-            <div class="form-group">
-                <label for="exampleFormControlTextarea3">{{ dp["label"] }}</label>
-                <textarea class="form-control rounded-0" id="exampleFormControlTextarea3" rows="100" readonly>
-                    {{ dp_json }}
-                </textarea>
+
+            <div id="accordion">
+                <div class="card">
+                    <div class="card-header" id="headingDescription">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseDescription"
+                                aria-expanded="true" aria-controls="collapseDescription">
+                                Product Description
+                            </button>
+                        </h5>
+                    </div>
+
+                    <div id="collapseDescription" class="collapse show" aria-labelledby="headingDescription" data-parent="#accordion">
+                        <div class="card-body">
+                            <p><b>Region: {{ dp["region"] }}</b></p>
+                            <p><b>GraphQL Endpoint: {{ dp["interfaces"]["graphql"] }}</b></p>
+                            <p><b>Data Catalog: {{ dp["interfaces"]["catalog"] }}</b></p>
+                            <p><b>Streams:</b> {{ dp["interfaces"].get("streams", "Not available") }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" id="headingDashboards">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseDashboards"
+                                aria-expanded="true" aria-controls="collapseDashboards">
+                                Dashboards
+                            </button>
+                        </h5>
+                    </div>
+
+                    <div id="collapseDashboards" class="collapse show" aria-labelledby="headingDashboards" data-parent="#accordion">
+                        <div class="card-body">
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" id="headingFiles">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseFiles"
+                                aria-expanded="true" aria-controls="collapseFiles">
+                                Files
+                            </button>
+                        </h5>
+                    </div>
+
+                    <div id="collapseFiles" class="collapse show" aria-labelledby="headingFiles" data-parent="#accordion">
+                        <div class="card-body">
+
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

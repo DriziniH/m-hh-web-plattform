@@ -1,12 +1,42 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Home</title>
+
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 </head>
 
 {% extends "layout.html" %}
 {% block title %}{% endblock %}
 {% block content %}
 
-Home
+
+<h1>Data Mesh Web Plattform</h1>
+
+<p>This website offers tools and visualizations for interacting with the data mesh.</p>
+<p>The <a href="#" , id="dashboard">Dashboard</a> offers relevant and user-specific visualizations.</p>
+<p>The mesh consists of multiple data products collecting, processing, analyzing and providing connected car data and
+    analytics</p>
+<p> You are able to explore the <a href="#" , id="datamesh">Data Mesh</a> with its properties and specifications.</p>
+<p>Every <a href="#" , id="dataproduct">Data Product</a> represents a region and consists of a GraphQL Endpoint and
+    possibly outgoing data streams and a
+    data catalog. Within this webpage you can explore the products interfaces and properties, its data and dashboard
+    analytics.</p>
+<p>When <a href="#" , id="adddataproduct">adding a new data product</a> to the platform a submitted predefined json
+    document can be uploaded, which is further parsed and validated.</p>
+
+<script>
+    $("#dashboard").click(function () {
+        window.location.href = "/dashboard";
+    });
+    $("#datamesh").click(function () {
+        window.location.href = "/data-mesh";
+    });
+    $("#dataproduct").click(function () {
+        window.location.href = "/data-product";
+    });
+    $("#adddataproduct").click(function () {
+        window.location.href = "/add-data-product";
+    });
+</script>
 
 {% endblock %}
