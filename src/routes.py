@@ -131,7 +131,7 @@ def insert_config(dp_config):
 
 
 @app.route("/dashboard/")
-def dashboard():
+def dashboard(methods=['GET']):
     if "sts" not in session:
         return redirect(url_for('login'))
 
@@ -156,7 +156,7 @@ chart_type = {
 
 
 @app.route("/analytics/")
-def analytics():
+def analytics(methods=['GET']):
     if "sts" not in session:
         return redirect(url_for('login'))
 
@@ -183,7 +183,7 @@ def analytics():
 
 
 @app.route("/data-mesh/")
-def dm():
+def dm(methods=['GET']):
     """Reads dm config and renders template with information
     """
 
@@ -196,7 +196,7 @@ def dm():
 
 
 @app.route("/data-products/")
-def dps():
+def dps(methods=['GET']):
     """ Reads dps and renders html template with dp information
 
     Params:
@@ -221,7 +221,7 @@ def dps():
         if dp["_id"] == dp_id:
             break
 
-    return render_template("dataproducts.html", dps=dps, dp=dp, dp_json=json.dumps(dp, indent=4))
+    return render_template("dataproducts.html", dps=dps, dp=dp, dp_json=json.dumps(dp["interfaces"], indent=4))
 
 
 @ app.route("/login/", methods=['GET', 'POST'])
@@ -241,7 +241,6 @@ def login():
                                aws_secret_access_key=form.aws_secred_access_key.data, aws_session_token=None)
             sts = sess.client('sts')
             sts.get_caller_identity()
-            flash("Successfully logged in.")
             session["sts"] = True
             return redirect(url_for('home'))
         except Exception as e:
