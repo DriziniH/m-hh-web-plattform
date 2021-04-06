@@ -1,3 +1,4 @@
+
 from flask import Flask
 from pymongo import MongoClient
 from src.conf import properties_mongo as pm
@@ -20,6 +21,5 @@ dm_col = mongo_db["dm_config"]
 dp_col = mongo_db["dp_config"]
 
 print("Successfully connected to MongoDB")
-
 
 from src import routes
