@@ -7,6 +7,7 @@
 {% block content %}
 <div class="content-section">
     <form method="POST" action="">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
             <legend class="border-bottom mb-4">IAM log In</legend>
@@ -24,16 +25,16 @@
                 {% endif %}
             </div>
             <div class="form-group">
-                {{ form.aws_secred_access_key.label(class="form-control-label") }}
-                {% if form.aws_secred_access_key.errors %}
-                {{ form.aws_secred_access_key(class="form-control form-control-lg is-invalid") }}
+                {{ form.aws_secret_access_key.label(class="form-control-label") }}
+                {% if form.aws_secret_access_key.errors %}
+                {{ form.aws_secret_access_key(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.aws_secred_access_key.errors %}
+                    {% for error in form.aws_secret_access_key.errors %}
                     <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.aws_secred_access_key(class="form-control form-control-lg") }}
+                {{ form.aws_secret_access_key(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
         </fieldset>
