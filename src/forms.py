@@ -6,6 +6,6 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, \
 class LoginForm(FlaskForm):
     aws_access_key_id = StringField('Access Key ID',
                         validators=[DataRequired()])
-    aws_secred_access_key = PasswordField('Secret Access Key', validators=[DataRequired()])
+    aws_secret_access_key = PasswordField('Secret Access Key', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
