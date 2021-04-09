@@ -4,11 +4,8 @@
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-    <!-- Bootstrap core CSS -->
-    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
     <!-- Custom styles for this template -->
-    <link href="../static/css/simple-sidebar.css" type="text/css" rel="stylesheet">
+    <link href="../static/css/datamesh.css" type="text/css" rel="stylesheet">
 </head>
 
 {% extends "layout.html" %}
@@ -20,10 +17,34 @@
     <!-- Page Content -->
     <div id="page-content-wrapper">
         <div class="container-fluid">
-            <div class="form-group">
-                <textarea class="form-control rounded-0" id="exampleFormControlTextarea3" rows="100" readonly>
-                    {{ dm_json }}
-                </textarea>
+            <div class="dm-description">
+                <p><b>Gateway: </b></p>
+                {% for region in dm["gateway"] %}
+                <p class="indent1"><b>{{ region["region"] }}:</b> {{ region["url"] }}</p>
+                {% endfor %}
+
+                <p><b>Specifications:</b></p>
+                <p class="indent1"><b>Security:</b> {{ dm["specifications"]["security"] }}</p>
+                <p class="indent1"><b>Data Catalog:</b> {{ dm["specifications"]["dataCatalog"] }}</p>
+                <p class="indent1"><b>Query API:</b> {{ dm["specifications"]["queryAPI"] }}</p>
+
+                <p class="indent1"><b>Streaming:</b> {{ dm["specifications"]["streaming"]["description"] }}</p>
+                <p class="indent2"><b>Technology:</b> {{ dm["specifications"]["streaming"]["technology"] }}</p>
+                <p class="indent2"><b>Format:</b> {{ dm["specifications"]["streaming"]["format"] }}</p>
+                <p class="indent2"><b>Global Analysis Stream:</b> {{ dm["specifications"]["streaming"]["globalAnalysis"]["description"] }}</p>
+                <p class="indent2"><b>Fields:</b> {{ dm["specifications"]["streaming"]["globalAnalysis"]["fields"] }}</p>
+
+
+                <p class="indent1"><b>Data Product Description:</b> {{ dm["specifications"]["dataProductDescription"]["description"] }}</p>
+                <p class="indent2"><b>Format:</b> {{ dm["specifications"]["dataProductDescription"]["format"] }}</p>
+                <p class="indent2"><b>Fields:</b> {{ dm["specifications"]["dataProductDescription"]["fields"] }}</p>
+
+                <p class="indent1"><b>Platform Analysis:</b> {{ dm["specifications"]["plattformAnalysis"]["description"] }}</p>
+                <p class="indent2"><b>Technology:</b> {{ dm["specifications"]["plattformAnalysis"]["technology"] }}</p>
+                <p class="indent2"><b>Format:</b> {{ dm["specifications"]["plattformAnalysis"]["format"] }}</p>
+                <p class="indent2"><b>Schema:</b> {{ dm["specifications"]["plattformAnalysis"]["schema"] }}</p>
+                <p class="indent2"><b>Query Name:</b> {{ dm["specifications"]["plattformAnalysis"]["queryName"] }}</p>
+
             </div>
         </div>
     </div>
