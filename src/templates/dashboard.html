@@ -5,7 +5,7 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
     <!-- Bootstrap core CSS -->
-    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/dashboard.css" rel="stylesheet">
 
 </head>
 
@@ -14,19 +14,36 @@
 
 {% block content %}
 
-    <div id="page-content-wrapper">
-        <!-- <div class="container-fluid"> -->
-        {% for graph in graphs %}
-        <div class="card" style="width: 20rem;">
-            <img class="card-img-top" src="{{ graph.get('img') }}">
-            <!--alt="Card image cap" -->
-            <div class="card-block">
-                <h4 class="card-title">{{ graph.get("layout", "Title not available").get("title", "Title not available") }}</h4>
-                <a href="?analysisType={{graph.get('_analysisType', None)}}" class="btn btn-primary">View</a>
+<div id="page-content-wrapper">
+    <div class="container-fluid">
+        {% if not plot %}
+        <div class="row">
+            {% for graph in graphs %}
+            <div class="col-sm">
+                <a href="{{ url_for('dashboard', analysis_type=graph.get('_analysisType', None)) }}">
+                    <div class="card">
+                        <img class="card-img-top" src="{{ graph.get('img') }}">
+                        <!--alt="Card image cap" -->
+                        <div class="card-block">
+                            <h4 class="card-title">{{
+                                graph.get("layout",
+                                "Title not available").get("title", "Title not available")}} </h4>
+                        </div>
+                    </div>
+                </a>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        {% else %}
+        <div id="bargraph">
+            <script>
+                var graphs = {{ plot | safe }};
+                Plotly.plot('bargraph', graphs, {});
+            </script>
+        </div>
+        {% endif %}
     </div>
+</div>
 
 
 {% endblock %}
