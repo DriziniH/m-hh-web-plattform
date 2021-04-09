@@ -15,9 +15,11 @@
 
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
+        <div class="sidebar-heading">Data Products</div>
         <div class="list-group list-group-flush">
             {% for dp in dps %}
-            <a href="?dpid={{ dp['_id'] }}" class="list-group-item list-group-item-action bg-light">{{ dp["label"]
+            <a href="{{ url_for('dps', dp_id= dp['_id'] ) }}" class="list-group-item list-group-item-action bg-light">{{
+                dp["label"]
                 }}</a>
             {% endfor %}
         </div>
@@ -28,7 +30,6 @@
     <!-- Page Content -->
     <div id="page-content-wrapper">
         <div class="container-fluid">
-
             <div id="accordion">
                 <div class="card">
                     <div class="card-header" id="headingDescription">
@@ -40,11 +41,12 @@
                         </h5>
                     </div>
 
-                    <div id="collapseDescription" class="collapse show" aria-labelledby="headingDescription" data-parent="#accordion">
+                    <div id="collapseDescription" class="collapse show" aria-labelledby="headingDescription"
+                        data-parent="#accordion">
                         <div class="card-body">
-                            <p><b>Region: {{ dp["region"] }}</b></p>
-                            <p><b>GraphQL Endpoint: {{ dp["interfaces"]["graphql"] }}</b></p>
-                            <p><b>Data Catalog: {{ dp["interfaces"]["catalog"] }}</b></p>
+                            <p><b>Region:</b> {{ dp["region"] }}</p>
+                            <p><b>GraphQL Endpoint:</b> {{ dp["interfaces"]["graphql"] }}</p>
+                            <p><b>Data Catalog:</b> {{ dp["interfaces"]["catalog"] }}</p>
                             <p><b>Streams:</b> {{ dp["interfaces"].get("streams", "Not available") }}</p>
                         </div>
                     </div>
@@ -60,9 +62,10 @@
                         </h5>
                     </div>
 
-                    <div id="collapseDashboards" class="collapse show" aria-labelledby="headingDashboards" data-parent="#accordion">
+                    <div id="collapseDashboards" class="collapse show" aria-labelledby="headingDashboards"
+                        data-parent="#accordion">
                         <div class="card-body">
-                            
+
                         </div>
                     </div>
                 </div>
@@ -77,9 +80,36 @@
                         </h5>
                     </div>
 
-                    <div id="collapseFiles" class="collapse show" aria-labelledby="headingFiles" data-parent="#accordion">
+                    <div id="collapseFiles" class="collapse show" aria-labelledby="headingFiles"
+                        data-parent="#accordion">
                         <div class="card-body">
-
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Location</th>
+                                        <th scope="col">Format</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for file in dp_files %}
+                                    <tr>
+                                        <td>{{ file["name"] }}</td>
+                                        <td>{{ file["description"] }}</td>
+                                        <td>
+                                            {% if file['location'] != 'Not available' %}
+                                            <a href="{{ url_for('download_from_s3', location=file['location']) }}">{{
+                                                file['location'] }}</a>
+                                            {% else %}
+                                            {{ file['location'] }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ file["format"] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
