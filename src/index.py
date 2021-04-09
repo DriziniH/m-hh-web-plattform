@@ -3,6 +3,9 @@ from flask import Flask
 from pymongo import MongoClient
 from src.conf import properties_mongo as pm
 from flask_session import Session
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 
@@ -12,6 +15,13 @@ app.config['SESSION_TYPE'] = 'filesystem'
 
 app.config.from_object(__name__)
 Session(app)
+
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["1000 per day", "100 per hour"]
+)
+csrf = CSRFProtect(app)
 
 mongo_connection = pm.db_con_usa
 mongo_client = MongoClient(mongo_connection)
