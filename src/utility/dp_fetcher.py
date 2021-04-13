@@ -72,6 +72,8 @@ def fetch_dl_files_formatted(region):
                         "location": response_table["StorageDescriptor"].get("Location", "Not available"),
                         "format": format_types.get(response_table["StorageDescriptor"]["SerdeInfo"].get("SerializationLibrary", "Not available"), "Not available")
                     }
+                    path = table["location"]+table["name"]+"."+table["format"]
+                    table.update({"path": path})
                     tables.append(table)
                 except Exception as e:
                     logger.error(

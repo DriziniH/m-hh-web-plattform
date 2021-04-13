@@ -99,7 +99,7 @@
                                         <td>{{ file["description"] }}</td>
                                         <td>
                                             {% if file['location'] != 'Not available' %}
-                                            <a href="{{ url_for('download_from_s3', location=file['location']) }}">{{
+                                            <a href="{{ url_for('download_from_s3', location=file['path']) }}">{{
                                                 file['location'] }}</a>
                                             {% else %}
                                             {{ file['location'] }}
