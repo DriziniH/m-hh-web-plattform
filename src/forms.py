@@ -4,8 +4,8 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, \
                                                  ValidationError
 
 class LoginForm(FlaskForm):
-    aws_access_key_id = StringField('Access Key ID',
+    id_field = StringField('ID',
                         validators=[DataRequired()])
-    aws_secret_access_key = PasswordField('Secret Access Key', validators=[DataRequired()])
-    remember = BooleanField('Remember Me')
-    submit = SubmitField('Login')
+    password_field = PasswordField('Password', validators=[DataRequired()])
+    submit_iam = SubmitField('Login with IAM')
+    submit_driver = SubmitField('Login as driver')

@@ -10,36 +10,37 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
-            <legend class="border-bottom mb-4">IAM log In</legend>
+            <legend class="border-bottom mb-4">Login</legend>
             <div class="form-group">
-                {{ form.aws_access_key_id.label(class="form-control-label") }}
-                {% if form.aws_access_key_id.errors %}
-                {{ form.aws_access_key_id(class="form-control form-control-lg is-invalid") }}
+                {{ form.id_field.label(class="form-control-label") }}
+                {% if form.id_field.errors %}
+                {{ form.id_field(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.aws_access_key_id.errors %}
+                    {% for error in form.id_field.errors %}
                     <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.aws_access_key_id(class="form-control form-control-lg") }}
+                {{ form.id_field(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
             <div class="form-group">
-                {{ form.aws_secret_access_key.label(class="form-control-label") }}
-                {% if form.aws_secret_access_key.errors %}
-                {{ form.aws_secret_access_key(class="form-control form-control-lg is-invalid") }}
+                {{ form.password_field.label(class="form-control-label") }}
+                {% if form.password_field.errors %}
+                {{ form.password_field(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.aws_secret_access_key.errors %}
+                    {% for error in form.password_field.errors %}
                     <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.aws_secret_access_key(class="form-control form-control-lg") }}
+                {{ form.password_field(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
         </fieldset>
         <div class="form-group">
-            {{ form.submit(class="btn btn-outline-info") }}
+            {{ form.submit_iam(class="btn btn-outline-info", id="iam") }}
+            {{ form.submit_driver(class="btn btn-outline-info", id="driver") }}
         </div>
     </form>
 </div>
