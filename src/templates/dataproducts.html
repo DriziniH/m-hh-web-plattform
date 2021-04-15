@@ -65,7 +65,14 @@
                     <div id="collapseDashboards" class="collapse show" aria-labelledby="headingDashboards"
                         data-parent="#accordion">
                         <div class="card-body">
-
+                            {% for graph in graphs %}
+                            <div id="bargraph">
+                                <script>
+                                    var graphs = {{ graph["graph"] | safe }};
+                                    Plotly.plot('bargraph', graphs, {});
+                                </script>
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

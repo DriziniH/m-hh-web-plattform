@@ -20,14 +20,12 @@
         <div class="row">
             {% for graph in graphs %}
             <div class="col-sm">
-                <a href="{{ url_for('dashboard', analysis_type=graph.get('_analysisType', None)) }}">
+                <a href="{{ url_for('dashboard', chart_index=graphs.index(graph)) }}">
                     <div class="card">
                         <img class="card-img-top" src="{{ graph.get('img') }}">
                         <!--alt="Card image cap" -->
                         <div class="card-block">
-                            <h4 class="card-title">{{
-                                graph.get("layout",
-                                "Title not available").get("title", "Title not available")}} </h4>
+                            <h4 class="card-title">{{ graph.get("title") }} </h4>
                         </div>
                     </div>
                 </a>

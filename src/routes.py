@@ -5,8 +5,8 @@ import json
 from flask import render_template, url_for, flash, redirect, request, Flask, render_template_string, session, send_file, send_from_directory, session, Response
 import boto3
 from src.forms import LoginForm
-from src.index import app, analytics_col, dm_col, dp_col
-from src.utility import graph_tools, dict_tools, dp_fetcher
+from src.index import app, bcrypt, analytics_col, dm_col, dp_col, users_col
+from src.utility import dict_tools, dp_fetcher, graphql
 from src.utility.logger import logger
 from flask_login import current_user, logout_user, login_required, login_user
 from boto3.session import Session as BotoSession
@@ -18,8 +18,10 @@ import uuid
 @app.route("/")
 @app.route("/home/")
 def home():
-    if "sts" not in session:
+    if "login" not in session:
         return redirect(url_for('login'))
+    if session["login"] == "driver":
+        return redirect(url_for('dashboard'))
 
     return render_template('home.html')
 
@@ -33,13 +35,15 @@ def allowed_file(filename):
 def add_dp():
     """
     Redirects to login page if user is not logged in
-    Receives and validates a json file with the data product config 
+    Receives and validates a json file with the data product config
     Json file is loaded and validated against data mesh specifications of the data product
     Configuration gets inserted to MongoDB if successfull
     """
 
-    if "sts" not in session:
+    if "login" not in session:
         return redirect(url_for('login'))
+    if session["login"] == "driver":
+        return redirect(url_for('dashboard'))
 
     if request.method == 'POST':
 
@@ -77,6 +81,9 @@ def add_dp():
 
     return render_template('add-dataproduct.html')
 
+# def get_dp_graphs():
+    
+
 def check_file(file):
     if not file.filename:
         return False, 'No selected file'
@@ -85,6 +92,7 @@ def check_file(file):
         return True
     else:
         return False, "File extension not allowed, please provide a json document"
+
 
 def validate_dp_config(dp_config):
     """ Fetches dp specification config and all dps
@@ -133,10 +141,11 @@ def validate_dp_config(dp_config):
 
     return resolve_subfields(dp_config_flatten, dp_specification, "")
 
+
 def fetch_dp_specification():
     try:
         dm_col.find_one({}).get("specifications", "").get(
-        "dataProductDescription", "").get("fields", "")
+            "dataProductDescription", "").get("fields", "")
     except Exception as e:
         logger.error(f'Error fetching data product specification: {str(e)}')
 
@@ -156,29 +165,49 @@ def insert_config(dp_config):
 
 @app.route("/dashboard/")
 def dashboard(methods=['GET']):
-    
-    if "sts" not in session:
+
+    if "login" not in session:
         return redirect(url_for('login'))
 
-    graphs = list(analytics_col.find({}, {'_id': False}))
+    if(session["login"] == "iam"):
+        graphs = fetch_graphs_iam()
+    elif(session["login"] == "driver"):
+        graphs = fetch_graphs_driver()
 
-    # Add images based on chart type
-    for graph in graphs:
-        graph.update({"img": chart_type.get(
-            graph.get("data", "").get("type", ""), "")})
-
-    plot = None
-    analysis_type = request.args.get('analysis_type')
-    if analysis_type:
-        doc = analytics_col.find_one(
-            {"_analysisType": analysis_type}, {'_id': False})
-        # drop keys to make dict json graph parseable
-        doc.pop("_analysisType")
-        doc["data"] = [doc["data"]]
-
-        plot = json.dumps(doc, cls=py.utils.PlotlyJSONEncoder)
+    plot = graphs[int(request.args.get('chart_index'))
+                  ]["graph"] if request.args.get('chart_index') else None
 
     return render_template('dashboard.html', graphs=graphs, plot=plot)
+
+
+def fetch_graphs_iam():
+    docs = list(analytics_col.find({}, {'_id': False}))
+    graphs = []
+
+    for doc in docs:
+        doc.update({"img": chart_type.get(
+            doc.get("data", "").get("type", ""), "")})
+        doc["data"] = [doc["data"]]
+
+        graph = {
+            "img": chart_type.get(doc.get("data", "").get("type", ""), ""),
+            "title":  doc.get("layout", "Title not available").get("title", "Title not available"),
+            "graph": json.dumps(doc, cls=py.utils.PlotlyJSONEncoder)
+        }
+
+    return graphs
+
+
+def fetch_graphs_driver():
+    user = session["driver"]
+    dp_conf = dp_col.find_one({"_id": user["dp"]})
+    graphs = graphql.fetch_dp_charts_driver(dp_conf["interfaces"]["graphql"], user["_vin"])
+
+    for graph in graphs:
+        graph.update({"img": chart_type.get(
+            graph.get("type", ""), "")})
+
+    return graphs
 
 
 chart_type = {
@@ -191,20 +220,21 @@ chart_type = {
 }
 
 
-@app.route("/data-mesh/")
+@ app.route("/data-mesh/")
 def dm(methods=['GET']):
     """Reads dm config and renders template with information
     """
-
-    if "sts" not in session:
+    if "login" not in session:
         return redirect(url_for('login'))
+    if session["login"] == "driver":
+        return redirect(url_for('dashboard'))
 
     dm = dm_col.find_one({}, {'_id': False})
 
     return render_template("datamesh.html", dm=dm)
 
 
-@app.route("/data-products/")
+@ app.route("/data-products/")
 def dps(dp_id=None, methods=['GET']):
     """ Reads data products and renders html template with dp information
 
@@ -215,11 +245,12 @@ def dps(dp_id=None, methods=['GET']):
         data-products.html: Displays a sidebar with all dps and their config in json
     """
 
-    if "sts" not in session:
+    if "login" not in session:
         return redirect(url_for('login'))
+    if session["login"] == "driver":
+        return redirect(url_for('dashboard'))
 
     dps = list(dp_col.find({}))
-    graphs = list(analytics_col.find({}))
 
     # get requested region or first
     dp_id = dp_id if dp_id else dps[0]["_id"]
@@ -227,13 +258,23 @@ def dps(dp_id=None, methods=['GET']):
     dp_files = []
     for dp in dps:
         if dp["_id"] == dp_id:
-            dp_files = dp_fetcher.fetch_dl_files_formatted(dp["region"])
             break
 
-    return render_template("dataproducts.html", dps=dps, dp=dp, dp_files=dp_files, dp_json=json.dumps(dp["interfaces"], indent=4))
+    graphs = fetch_graphs_dp(dp)
+    dp_files = dp_fetcher.fetch_dl_files_formatted(dp["region"])
 
+    return render_template("dataproducts.html", dps=dps, dp=dp, graphs=graphs, dp_files=dp_files, dp_json=json.dumps(dp["interfaces"], indent=4))
 
-@app.route('/download/<path:location>', methods=['GET', 'POST'])
+def fetch_graphs_dp(dp_conf):
+    graphs = graphql.fetch_dp_charts(dp_conf["interfaces"]["graphql"])
+
+    for graph in graphs:
+        graph.update({"img": chart_type.get(
+            graph.get("type", ""), "")})
+
+    return graphs
+
+@ app.route('/download/<path:location>', methods=['GET', 'POST'])
 def download_from_s3(location):
     download_link = dp_fetcher.create_download_link(location)
     return redirect(download_link)
@@ -241,34 +282,53 @@ def download_from_s3(location):
 
 @ app.route("/login/", methods=['GET', 'POST'])
 def login():
-    if "sts" in session:
+    if "login" in session:
         flash_message("Already logged in!")
         return redirect(url_for('home'))
 
     form = LoginForm()
     if form.validate_on_submit():
-        if form.aws_access_key_id.data == "admin":  # TODO remove
-            flash("Successfully logged in.")
-            session["sts"] = True
+        if form.data["submit_iam"] and login_iam(form):
             return redirect(url_for('home'))
-        try:
-            sess = BotoSession(aws_access_key_id=form.aws_access_key_id.data,
-                               aws_secret_access_key=form.aws_secret_access_key.data, aws_session_token=None)
-            sts = sess.client('sts')
-            sts.get_caller_identity()
-            session["sts"] = True
+        elif form.data["submit_driver"] and login_driver(form):
+            return redirect(url_for('dashboard'))
 
-            return redirect(url_for('home'))
-        except Exception as e:
-            flash("Credentials are NOT valid.")
-            print(e)
-
-    return render_template('login.html', title='Login', form=form)
+    return render_template('login.html', form=form)
 
 
-@app.route("/logout/")
+def login_iam(form):
+    try:
+        sess = BotoSession(aws_access_key_id=form.id_field.data,
+                           aws_secret_access_key=form.password_field.data, aws_session_token=None)
+        sts = sess.client('sts')
+        sts.get_caller_identity()
+        session["login"] = "iam"
+
+        return True
+    except Exception as e:
+        flash("IAM Credentials are NOT valid.")
+        print(e)
+        return False
+
+
+def login_driver(form):
+    user = users_col.find_one({"_vin": form.id_field.data})
+    if not user:
+        flash_message("Please enter a valid user.")
+        return False
+
+    if not bcrypt.check_password_hash(user["pwd"], form.password_field.data):
+        flash_message("Incorrect password. Please try again.")
+        return False
+
+    session["login"] = "driver"
+    session["driver"] = user
+    return True
+
+
+@ app.route("/logout/")
 def logout():
-    session.pop("sts")
+    session.pop("login")
     flash_message("You have been successfully logged out!")
     return redirect(url_for('login'))
 
