@@ -1,0 +1,20 @@
+Metadata-Version: 1.1
+Name: mapsplotlib
+Version: 1.2.1
+Summary: 
+        Custom Python plots on a Google Maps background.
+        A flexible matplotlib like interface to generate many types of plots on top of Google Maps.
+    
+Home-page: https://github.com/tcassou/mapsplotlib
+Author: UNKNOWN
+Author-email: UNKNOWN
+License: UNKNOWN
+Download-URL: https://github.com/tcassou/mapsplotlib/archive/1.2.1.tar.gz
+Description: UNKNOWN
+Keywords: google,maps,matplotlib,python,plot
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Topic :: Scientific/Engineering :: Visualization
