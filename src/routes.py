@@ -13,7 +13,7 @@ from boto3.session import Session as BotoSession
 import plotly as py
 from werkzeug.utils import secure_filename
 import uuid
-
+import plotly.graph_objects as go
 
 @app.route("/")
 @app.route("/home/")
@@ -169,15 +169,16 @@ def dashboard(methods=['GET']):
     if "login" not in session:
         return redirect(url_for('login'))
 
-    if(session["login"] == "iam"):
-        graphs = fetch_graphs_iam()
-    elif(session["login"] == "driver"):
-        graphs = fetch_graphs_driver()
+    if "graphs" not in session:
+        if(session["login"] == "iam"):
+            session["graphs"] = fetch_graphs_iam()
+        elif(session["login"] == "driver"):
+            session["graphs"] = fetch_graphs_driver()
 
-    plot = graphs[int(request.args.get('chart_index'))
+    plot = session["graphs"][int(request.args.get('chart_index'))
                   ]["graph"] if request.args.get('chart_index') else None
 
-    return render_template('dashboard.html', graphs=graphs, plot=plot)
+    return render_template('dashboard.html', graphs= session["graphs"], plot=plot)
 
 
 def fetch_graphs_iam():
@@ -199,13 +200,23 @@ def fetch_graphs_iam():
 
 
 def fetch_graphs_driver():
+    """Fetches region graphs from mongodb with car vin, adds image based on graph type and formats graph object to plotly json
+
+    Returns:
+        graphs(list): List of graphs as plotly json strings
+    """
     user = session["driver"]
     dp_conf = dp_col.find_one({"_id": user["dp"]})
     graphs = graphql.fetch_dp_charts_driver(dp_conf["interfaces"]["graphql"], user["_vin"])
 
     for graph in graphs:
+        graph_type = graph.get("type", "")
         graph.update({"img": chart_type.get(
-            graph.get("type", ""), "")})
+            graph_type, "")})
+        if "map" in graph_type:
+            plot = json.loads(graph["graph"])
+            fig = go.Figure(plot)
+            graph["graph"] = json.dumps(fig, cls=py.utils.PlotlyJSONEncoder)
 
     return graphs
 
@@ -216,7 +227,8 @@ chart_type = {
     "pie": "../static/img/pie-chart.png",
     "line": "../static/img/line-chart.png",
     "scattergeo": "../static/img/map.png",
-    "log": "../static/img/log.png"
+    "log": "../static/img/log.png",
+    "map":"../static/img/map.png"
 }
 
 
@@ -312,11 +324,10 @@ def login_iam(form):
 
 
 def login_driver(form):
-    user = users_col.find_one({"_vin": form.id_field.data})
+    user = users_col.find_one({"_username": form.id_field.data})
     if not user:
         flash_message("Please enter a valid user.")
         return False
-
     if not bcrypt.check_password_hash(user["pwd"], form.password_field.data):
         flash_message("Incorrect password. Please try again.")
         return False
@@ -328,7 +339,7 @@ def login_driver(form):
 
 @ app.route("/logout/")
 def logout():
-    session.pop("login")
+    session.clear()
     flash_message("You have been successfully logged out!")
     return redirect(url_for('login'))
 
