@@ -12,9 +12,12 @@ def fetch_dp_charts_driver(region_endpoint, vin):
         }}
         }}
         """
-
-    request = requests.post(
-        'http://localhost:4001/graphql', json={'query': query})
+    try:
+        request = requests.post(
+            'http://localhost:4001/graphql', json={'query': query})
+    except Exception as e:
+        logger.error(f'Error fetching data from GraphQL: {str(e)}')
+        return []
 
     if request.status_code == 200:
         response = request.json()["data"]["fetchAnalyticResultsDriver"]
@@ -36,8 +39,12 @@ def fetch_dp_charts(region_endpoint):
         }
         """
 
-    request = requests.post(
+    try:
+        request = requests.post(
         'http://localhost:4001/graphql', json={'query': query})
+    except Exception as e:
+        logger.error(f'Error fetching data from GraphQL: {str(e)}')
+        return []
 
     if request.status_code == 200:
         response = request.json()["data"]["fetchAnalyticResults"]
