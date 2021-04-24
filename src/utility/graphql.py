@@ -7,7 +7,7 @@ def fetch_dp_charts_driver(region_endpoint, vin):
         {{
         fetchAnalyticResultsDriver(id:"{vin}"){{
             title
-            type
+            chartType
             graph
         }}
         }}
@@ -33,7 +33,7 @@ def fetch_dp_charts(region_endpoint):
         {
         fetchAnalyticResults{
             title
-            type
+            chartType
             graph
         }
         }
