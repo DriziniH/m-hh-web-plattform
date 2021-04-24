@@ -13,6 +13,7 @@
 
 <div id="page-content-wrapper">
     <div class="container-fluid">
+
         {% if not plot %}
         <div class="row">
             {% for graph in graphs %}
@@ -29,13 +30,30 @@
             </div>
             {% endfor %}
         </div>
-        {% else %}
+        {% elif plot_type != "log" %}
         <div id="bargraph">
             <script>
                 var graphs = {{ plot | safe }};
                 Plotly.plot('bargraph', graphs, {});
             </script>
         </div>
+        {% else %}
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Time</th>
+                <th scope="col">Information</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for item in plot %}
+              <tr>
+                <td>{{ list(item.keys())[0] }}</td>
+                <td>{{ list(item.values())[0] }} </td>
+              </tr>
+             {% endfor %}
+            </tbody>
+          </table>
         {% endif %}
     </div>
 </div>

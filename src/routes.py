@@ -15,17 +15,6 @@ from werkzeug.utils import secure_filename
 import uuid
 import plotly.graph_objects as go
 
-@app.route("/")
-@app.route("/home/")
-def home():
-    if "login" not in session:
-        return redirect(url_for('login'))
-    if session["login"] == "driver":
-        return redirect(url_for('dashboard'))
-
-    return render_template('home.html')
-
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() == "json"
@@ -162,41 +151,36 @@ def insert_config(dp_config):
     result = dp_col.insert_one(dp_config)
     return result.acknowledged
 
-
+@app.route("/")
 @app.route("/dashboard/")
 def dashboard(methods=['GET']):
 
     if "login" not in session:
         return redirect(url_for('login'))
 
-    if "graphs" not in session:
-        if(session["login"] == "iam"):
-            session["graphs"] = fetch_graphs_iam()
-        elif(session["login"] == "driver"):
+    
+    if(session["login"] == "iam"):
+        #fetch every call for real time data
+        session["graphs"] = fetch_graphs_iam()
+    elif(session["login"] == "driver"):
+        #fetch only once to reduce network traffic
+        if "graphs" not in session:
             session["graphs"] = fetch_graphs_driver()
 
-    plot = session["graphs"][int(request.args.get('chart_index'))
-                  ]["graph"] if request.args.get('chart_index') else None
+    if request.args.get('chart_index'):
+        graph = session["graphs"][int(request.args.get('chart_index'))] 
+        plot = graph["graph"]
+        plot_type = graph["chartType"]
+    else:
+        plot = None
+        plot_type = None
 
-    return render_template('dashboard.html', graphs= session["graphs"], plot=plot)
+    return render_template('dashboard.html', graphs= session["graphs"], plot=plot, plot_type=plot_type, list=list)
 
 
 def fetch_graphs_iam():
     docs = list(analytics_col.find({}, {'_id': False}))
-    graphs = []
-
-    for doc in docs:
-        doc.update({"img": chart_type.get(
-            doc.get("data", "").get("type", ""), "")})
-        doc["data"] = [doc["data"]]
-
-        graph = {
-            "img": chart_type.get(doc.get("data", "").get("type", ""), ""),
-            "title":  doc.get("layout", "Title not available").get("title", "Title not available"),
-            "graph": json.dumps(doc, cls=py.utils.PlotlyJSONEncoder)
-        }
-
-    return graphs
+    return create_graphs(docs, True)
 
 
 def fetch_graphs_driver():
@@ -208,20 +192,26 @@ def fetch_graphs_driver():
     user = session["driver"]
     dp_conf = dp_col.find_one({"_id": user["dp"]})
     graphs = graphql.fetch_dp_charts_driver(dp_conf["interfaces"]["graphql"], user["_vin"])
-
+    return create_graphs(graphs, False)
+   
+ 
+def create_graphs(graphs, iam):
     for graph in graphs:
-        graph_type = graph.get("type", "")
-        graph.update({"img": chart_type.get(
-            graph_type, "")})
-        if "map" in graph_type:
-            plot = json.loads(graph["graph"])
-            fig = go.Figure(plot)
-            graph["graph"] = json.dumps(fig, cls=py.utils.PlotlyJSONEncoder)
-
+            graph_type = graph.get("chartType", "")
+            graph.update({"img": chart_types.get(
+                graph_type, "")})
+            if "map" in graph_type:
+                plot = json.loads(graph["graph"])
+                fig = go.Figure(plot)
+                graph["graph"] = json.dumps(fig, cls=py.utils.PlotlyJSONEncoder)
+            elif "log" in graph_type:
+                continue
+            else:
+                if iam:
+                    graph["graph"] = json.dumps(graph["graph"], cls=py.utils.PlotlyJSONEncoder)
     return graphs
 
-
-chart_type = {
+chart_types = {
     "bar": "../static/img/bar-chart.png",
     "scatter": "../static/img/scatter-chart.png",
     "pie": "../static/img/pie-chart.png",
@@ -230,7 +220,6 @@ chart_type = {
     "log": "../static/img/log.png",
     "map":"../static/img/map.png"
 }
-
 
 @ app.route("/data-mesh/")
 def dm(methods=['GET']):
@@ -272,16 +261,16 @@ def dps(dp_id=None, methods=['GET']):
         if dp["_id"] == dp_id:
             break
 
-    graphs = fetch_graphs_dp(dp)
+    graphs = fetch_graphs_dp(dp["interfaces"]["graphql"])
     dp_files = dp_fetcher.fetch_dl_files_formatted(dp["region"])
 
     return render_template("dataproducts.html", dps=dps, dp=dp, graphs=graphs, dp_files=dp_files, dp_json=json.dumps(dp["interfaces"], indent=4))
 
-def fetch_graphs_dp(dp_conf):
-    graphs = graphql.fetch_dp_charts(dp_conf["interfaces"]["graphql"])
+def fetch_graphs_dp(region_endpoint):
+    graphs = graphql.fetch_dp_charts(region_endpoint)
 
     for graph in graphs:
-        graph.update({"img": chart_type.get(
+        graph.update({"img": chart_types.get(
             graph.get("type", ""), "")})
 
     return graphs
@@ -296,12 +285,12 @@ def download_from_s3(location):
 def login():
     if "login" in session:
         flash_message("Already logged in!")
-        return redirect(url_for('home'))
+        return redirect(url_for('dashboard'))
 
     form = LoginForm()
     if form.validate_on_submit():
         if form.data["submit_iam"] and login_iam(form):
-            return redirect(url_for('home'))
+            return redirect(url_for('dashboard'))
         elif form.data["submit_driver"] and login_driver(form):
             return redirect(url_for('dashboard'))
 
