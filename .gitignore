@@ -1,2 +1,3 @@
 src/conf/
 .aws/
+flask_session/
