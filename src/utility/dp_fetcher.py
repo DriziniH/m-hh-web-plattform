@@ -96,8 +96,8 @@ format_types = {
 }
 
 
-def create_download_link(location):
-    s3_client = boto3.client('s3')
+def create_download_link(location, region):
+    s3_client = boto3.client('s3',region_name=region)
 
     location = location.replace("s3://", "")
     bucket = location.split("/")[0]

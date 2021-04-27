@@ -1,6 +1,8 @@
 import requests
 from src.utility.logger import logger
 
+gateway = "http://localhost:8762"
+
 def fetch_dp_charts_driver(region_endpoint, vin):
 
     query = f"""
@@ -14,7 +16,7 @@ def fetch_dp_charts_driver(region_endpoint, vin):
         """
     try:
         request = requests.post(
-            'http://localhost:4001/graphql', json={'query': query})
+            gateway+region_endpoint, json={'query': query})
     except Exception as e:
         logger.error(f'Error fetching data from GraphQL: {str(e)}')
         return []
@@ -41,7 +43,7 @@ def fetch_dp_charts(region_endpoint):
 
     try:
         request = requests.post(
-        'http://localhost:4001/graphql', json={'query': query})
+        gateway+region_endpoint, json={'query': query})
     except Exception as e:
         logger.error(f'Error fetching data from GraphQL: {str(e)}')
         return []

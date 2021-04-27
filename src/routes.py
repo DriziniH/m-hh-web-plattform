@@ -78,7 +78,7 @@ def check_file(file):
         return False, 'No selected file'
     if allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        return True
+        return True, ""
     else:
         return False, "File extension not allowed, please provide a json document"
 
@@ -133,7 +133,7 @@ def validate_dp_config(dp_config):
 
 def fetch_dp_specification():
     try:
-        dm_col.find_one({}).get("specifications", "").get(
+        return dm_col.find_one({}).get("specifications", "").get(
             "dataProductDescription", "").get("fields", "")
     except Exception as e:
         logger.error(f'Error fetching data product specification: {str(e)}')
@@ -253,13 +253,8 @@ def dps(dp_id=None, methods=['GET']):
 
     dps = list(dp_col.find({}))
 
-    # get requested region or first
-    dp_id = dp_id if dp_id else dps[0]["_id"]
-    dp = None
-    dp_files = []
-    for dp in dps:
-        if dp["_id"] == dp_id:
-            break
+    # get requested dp or first
+    dp = dps[int(request.args.get('dp_index'))] if 'dp_index' in request.args else dps[0]
 
     graphs = fetch_graphs_dp(dp["interfaces"]["graphql"])
     dp_files = dp_fetcher.fetch_dl_files_formatted(dp["region"])
@@ -277,7 +272,8 @@ def fetch_graphs_dp(region_endpoint):
 
 @ app.route('/download/<path:location>', methods=['GET', 'POST'])
 def download_from_s3(location):
-    download_link = dp_fetcher.create_download_link(location)
+    region = request.args.get("region")
+    download_link = dp_fetcher.create_download_link(location, region)
     return redirect(download_link)
 
 
