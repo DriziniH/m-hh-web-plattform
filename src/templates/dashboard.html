@@ -11,50 +11,50 @@
 
 {% block content %}
 
+
 <div id="page-content-wrapper">
     <div class="container-fluid">
 
-        {% if not plot %}
-        <div class="row">
-            {% for graph in graphs %}
-            <div class="col-sm">
-                <a href="{{ url_for('dashboard', chart_index=graphs.index(graph)) }}">
-                    <div class="card">
-                        <img class="card-img-top" src="{{ graph.get('img') }}">
-                        <!--alt="Card image cap" -->
-                        <div class="card-block">
-                            <h4 class="card-title">{{ graph.get("title") }} </h4>
-                        </div>
-                    </div>
-                </a>
+        {% for index, graph in enumerate(graphs) %}
+        
+        <div class="row-fluid">
+            <div class="col-sm-auto">
+            {% if graph.get("chartType", "") != "log" %}
+            
+                <div id="bargraph-{{index}}">
+                    <script>
+                        var graph = {{ graph.get("graph", "") | safe }};
+                        Plotly.plot('bargraph-{{index}}', graph, {});
+                    </script>
+                </div>
             </div>
-            {% endfor %}
+
+            {% else %}
+
+            <h3>{{graph.get("title", "")}}</h3>
+
+            <div class="col">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Time</th>
+                            <th scope="col">Information</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in plot %}
+                        <tr>
+                            <td>{{ list(item.keys())[0] }}</td>
+                            <td>{{ list(item.values())[0] }} </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
         </div>
-        {% elif plot_type != "log" %}
-        <div id="bargraph">
-            <script>
-                var graphs = {{ plot | safe }};
-                Plotly.plot('bargraph', graphs, {});
-            </script>
-        </div>
-        {% else %}
-        <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">Time</th>
-                <th scope="col">Information</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for item in plot %}
-              <tr>
-                <td>{{ list(item.keys())[0] }}</td>
-                <td>{{ list(item.values())[0] }} </td>
-              </tr>
-             {% endfor %}
-            </tbody>
-          </table>
-        {% endif %}
+        {% endfor %}
+
     </div>
 </div>
 

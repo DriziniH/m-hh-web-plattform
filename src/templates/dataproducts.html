@@ -64,11 +64,11 @@
                     <div id="collapseDashboards" class="collapse show" aria-labelledby="headingDashboards"
                         data-parent="#accordion">
                         <div class="card-body">
-                            {% for graph in graphs %}
-                            <div id="bargraph">
+                            {% for index, graph in enumerate(graphs) %}
+                            <div id="graph-{{index}}">
                                 <script>
-                                    var graphs = {{ graph["graph"] | safe }};
-                                    Plotly.plot('bargraph', graphs, {});
+                                    var graph = {{ graph["graph"] | safe }};
+                                    Plotly.plot("graph-{{index}}", graph, {});
                                 </script>
                             </div>
                             {% endfor %}

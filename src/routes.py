@@ -68,10 +68,7 @@ def add_dp():
 
         return redirect(url_for('dps'))
 
-    return render_template('add-dataproduct.html')
-
-# def get_dp_graphs():
-    
+    return render_template('add-dataproduct.html') 
 
 def check_file(file):
     if not file.filename:
@@ -158,24 +155,16 @@ def dashboard(methods=['GET']):
     if "login" not in session:
         return redirect(url_for('login'))
 
-    
     if(session["login"] == "iam"):
         #fetch every call for real time data
-        session["graphs"] = fetch_graphs_iam()
+        session["graphs"] = fetch_selected_iam_graphs_from_dp()
+        session["graphs"].extend(fetch_graphs_iam())
     elif(session["login"] == "driver"):
         #fetch only once to reduce network traffic
         if "graphs" not in session:
             session["graphs"] = fetch_graphs_driver()
 
-    if request.args.get('chart_index'):
-        graph = session["graphs"][int(request.args.get('chart_index'))] 
-        plot = graph["graph"]
-        plot_type = graph["chartType"]
-    else:
-        plot = None
-        plot_type = None
-
-    return render_template('dashboard.html', graphs= session["graphs"], plot=plot, plot_type=plot_type, list=list)
+    return render_template('dashboard.html', graphs= session["graphs"], list=list, enumerate=enumerate)
 
 
 def fetch_graphs_iam():
@@ -193,13 +182,19 @@ def fetch_graphs_driver():
     dp_conf = dp_col.find_one({"_id": user["dp"]})
     graphs = graphql.fetch_dp_charts_driver(dp_conf["interfaces"]["graphql"], user["_vin"])
     return create_graphs(graphs, False)
-   
+
+def fetch_selected_iam_graphs_from_dp():
+    graphs = graphql.fetch_dp_charts("/eu")
+    selected_graphs = []
+    for graph in graphs:
+        if graph.get("title","") == "Consumption per model" or graph.get("title","") == "Emission per model":
+            selected_graphs.append(graph)
+    return create_graphs(selected_graphs, False)
  
-def create_graphs(graphs, iam):
+def create_graphs(graphs, plotlyJSONEncode):
     for graph in graphs:
             graph_type = graph.get("chartType", "")
-            graph.update({"img": chart_types.get(
-                graph_type, "")})
+
             if "map" in graph_type:
                 plot = json.loads(graph["graph"])
                 fig = go.Figure(plot)
@@ -207,19 +202,9 @@ def create_graphs(graphs, iam):
             elif "log" in graph_type:
                 continue
             else:
-                if iam:
+                if plotlyJSONEncode:
                     graph["graph"] = json.dumps(graph["graph"], cls=py.utils.PlotlyJSONEncoder)
     return graphs
-
-chart_types = {
-    "bar": "../static/img/bar-chart.png",
-    "scatter": "../static/img/scatter-chart.png",
-    "pie": "../static/img/pie-chart.png",
-    "line": "../static/img/line-chart.png",
-    "scattergeo": "../static/img/map.png",
-    "log": "../static/img/log.png",
-    "map":"../static/img/map.png"
-}
 
 @ app.route("/data-mesh/")
 def dm(methods=['GET']):
@@ -256,19 +241,10 @@ def dps(dp_id=None, methods=['GET']):
     # get requested dp or first
     dp = dps[int(request.args.get('dp_index'))] if 'dp_index' in request.args else dps[0]
 
-    graphs = fetch_graphs_dp(dp["interfaces"]["graphql"])
+    graphs = graphql.fetch_dp_charts(dp["interfaces"]["graphql"])
     dp_files = dp_fetcher.fetch_dl_files_formatted(dp["region"])
 
-    return render_template("dataproducts.html", dps=dps, dp=dp, graphs=graphs, dp_files=dp_files, dp_json=json.dumps(dp["interfaces"], indent=4))
-
-def fetch_graphs_dp(region_endpoint):
-    graphs = graphql.fetch_dp_charts(region_endpoint)
-
-    for graph in graphs:
-        graph.update({"img": chart_types.get(
-            graph.get("type", ""), "")})
-
-    return graphs
+    return render_template("dataproducts.html", dps=dps, dp=dp, graphs=graphs, dp_files=dp_files, dp_json=json.dumps(dp["interfaces"], indent=4), enumerate=enumerate)
 
 @ app.route('/download/<path:location>', methods=['GET', 'POST'])
 def download_from_s3(location):

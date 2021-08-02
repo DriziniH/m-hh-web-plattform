@@ -43,7 +43,7 @@ def fetch_dp_charts(region_endpoint):
 
     try:
         request = requests.post(
-        gateway+region_endpoint, json={'query': query})
+        gateway+region_endpoint, json={'query': query})  #
     except Exception as e:
         logger.error(f'Error fetching data from GraphQL: {str(e)}')
         return []

@@ -25,7 +25,7 @@ limiter = Limiter(
 csrf = CSRFProtect(app)
 bcrypt = Bcrypt(app)
 
-mongo_connection = pm.db_con_usa
+mongo_connection = pm.db_con_eu
 mongo_client = MongoClient(mongo_connection)
 mongo_db = mongo_client["M-HH"]
 analytics_col = mongo_db["analysis"]
